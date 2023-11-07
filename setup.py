@@ -4,8 +4,8 @@ with open('requirements.txt') as f:
     install_requires = f.read().splitlines()
 
 setup(
-    name="paystackpy",
-    version="1.0",
+    name="PaystackApiClient",
+    version="0.1.1",
     packages=find_packages(),
     install_requires=install_requires,
     author="Al-Areef",
