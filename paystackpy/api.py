@@ -2,7 +2,7 @@ import requests
 from typing import Dict, Union
 from paystackpy.errors import APIError
 
-class PaystackApi:
+class PaystackAPI:
     
     ALLOWED_OPTIONAL_PARAMS = [
         "currency",
@@ -41,10 +41,10 @@ class PaystackApi:
             **valid_kwargs
         }
         headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
+            'Authorization': f'Bearer {self.api_key}',
+            'Content-Type': 'application/json',
         }
-        response = requests.post(self.paystack_initilization_url, data=data, headers=headers)
+        response = requests.post(self.paystack_initilization_url, headers=headers, json=data)
         if response.status_code == 200:
             custom_response = {
                 "status_code": response.status_code,
