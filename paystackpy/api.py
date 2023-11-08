@@ -1,5 +1,5 @@
 import requests
-from typing import Dict
+from typing import Dict, Union
 from paystackpy.errors import APIError
 
 class PaystackApi:
@@ -21,7 +21,7 @@ class PaystackApi:
     def __init__(self, api_key: str) -> None:
         self.api_key = api_key
         self.paystack_initilization_url = "https://api.paystack.co/transaction/initialize"
-        self.paystack_verification_url = f"https://api.paystack.co/transaction/verify/"
+        self.paystack_verification_url = f"https://api.paystack.co/transaction/verify"
         
     
     def initialize_transaction(self, email: str, amount: int, **kwargs):
@@ -57,5 +57,28 @@ class PaystackApi:
         return custom_response
     
     
-    def verify_transaction(self, reference: int | str) -> Dict:
-        """"""
+    def verify_transaction(self, reference: Union[int, str]) -> Dict:
+        """
+        Verify a Paystack transaction.
+
+        :param reference: Reference id of the transaction (int or str).
+        :return: Customized response from Paystack API.
+        :raises APIError: If the verification fails with a non-200 status code.
+        """
+        url = f"{self.paystack_verification_url}/{reference}"
+        headers = {
+            'Authorization': f'Bearer {self.api_key}'
+        }
+        response = requests.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            custom_response = {
+                "status_code": response.status_code,
+                "message": "Transaction details retrieved successfully",
+                "data": response.json()
+            }
+        else:
+            error_message = response.text
+            raise APIError(response.status_code, error_message)
+        
+        return custom_response
