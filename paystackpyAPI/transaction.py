@@ -2,7 +2,7 @@
 
 """Handles All Paystack related tasks"""
 import requests
-from api.paystack import PaystackAPI
+from .base import PaystackAPI
 from typing import Dict, Union
 from errors import APIError
 

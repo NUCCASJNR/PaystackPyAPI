@@ -1,6 +1,7 @@
 import tracemalloc
 import unittest
-from api.transaction import Transaction, APIError
+from paystackpyAPI.transaction import Transaction
+from errors import APIError
 from os import getenv
 import secrets
 import responses
@@ -11,7 +12,7 @@ REFERENCE = secrets.token_hex(16)
 class TestPaystackAPI(unittest.TestCase):
     def setUp(self):
         # Set up any necessary test data or configurations
-        self.api = Transaction(getenv("PAYSTACK_KEY"))
+        self.api = Transaction(api_key=getenv("PAYSTACK_KEY"))
 
     def tearDown(self):
         # Clean up any resources used for testing

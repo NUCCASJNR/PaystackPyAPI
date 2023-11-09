@@ -2,6 +2,7 @@
 class PaystackError(Exception):
     """Base class for Paystack API errors."""
 
+
 class APIError(PaystackError):
     """Exception raised for errors in the Paystack API.
 
