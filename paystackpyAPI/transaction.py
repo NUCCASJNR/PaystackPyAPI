@@ -36,6 +36,7 @@ class Transaction(PaystackAPI):
         self.paystack_initialization_url = "https://api.paystack.co/transaction/initialize"
         self.paystack_verification_url = "https://api.paystack.co/transaction/verify"
         self.list_transaction_url = "https://api.paystack.co/transaction"
+        self.fetch_transaction_url = "https://api.paystack.co/transaction"
 
     def initialize_transaction(self, email: str, amount: int, **kwargs):
         """
@@ -70,7 +71,7 @@ class Transaction(PaystackAPI):
             custom_response = {
                 "status_code": response.status_code,
                 "message": "Transaction initialized successfully",
-                "data": response.json()
+                "response_from_api": response.json()
             }
         else:
             error_message = response.text
@@ -101,7 +102,7 @@ class Transaction(PaystackAPI):
             custom_response = {
                 "status_code": response.status_code,
                 "message": "Transaction details retrieved successfully",
-                "data": response.json()
+                "response_from_api": response.json()
             }
         else:
             error_message = response.text
@@ -156,7 +157,7 @@ class Transaction(PaystackAPI):
             custom_response = {
                 "status_code": response.status_code,
                 "message": "Transactions details below",
-                "data": response.json()
+                "response_from_api": response.json()
             }
         else:
             error_message = response.text
@@ -164,3 +165,26 @@ class Transaction(PaystackAPI):
 
         return custom_response
 
+    def fetch_transaction(self, id: int) -> Dict:
+        """
+        Fetches the details of  a transaction using the id provided
+        :param id:
+            Transaction Id
+        """
+        if not self.api_key:
+            raise APIError(401, "Invalid Api Key")
+        url = f"{self.fetch_transaction_url}/{id}"
+        headers = {
+            'Authorization': f'Bearer {self.api_key}'
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            custom_response = {
+                "status_code": response.status_code,
+                "message": "Transaction Successfully fetched",
+                "response_from_api": response.json()
+            }
+        else:
+            error_message = response.text
+            raise APIError(response.status_code, error_message)
+        return custom_response
