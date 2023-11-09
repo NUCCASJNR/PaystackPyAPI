@@ -7,7 +7,7 @@ import secrets
 import responses
 
 REFERENCE = secrets.token_hex(16)
-
+ID = ''
 
 class TestPaystackAPI(unittest.TestCase):
     def setUp(self):
@@ -52,6 +52,7 @@ class TestPaystackAPI(unittest.TestCase):
     def test_verify_transaction(self):
         reference = REFERENCE
         response = self.api.verify_transaction(reference)
+        ID = response["response_from_api"]['data']['id']
         self.assertEqual(response["status_code"], 200)
         self.assertEqual(response["message"], "Transaction details retrieved successfully")
 
@@ -85,6 +86,25 @@ class TestPaystackAPI(unittest.TestCase):
         elif response["status_code"] == 200:
             self.assertEqual(response["status_code"], 200)
             self.assertEqual(response["message"], "Transactions details below")
+
+    def test_with_str_id(self):
+        with self.assertRaises(APIError) as context:
+            self.api.fetch_transaction("wrong_id")
+        self.assertEqual(context.exception.status_code, 400)
+        self.assertIn("Transaction ID should be numeric", str(context.exception))
+
+    def test_with_int_id(self):
+        with self.assertRaises(APIError) as context:
+            self.api.fetch_transaction(123456789)
+        self.assertEqual(context.exception.status_code, 404)
+        self.assertIn("Transaction not found", str(context.exception))
+        print(str(context.exception))
+
+    def test_with_valid_id(self):
+        response = self.api.fetch_transaction(ID)
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(response["message"], "Transaction Successfully fetched")
+        print(response["message"])
 
 
 if __name__ == '__main__':
