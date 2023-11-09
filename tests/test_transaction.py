@@ -78,6 +78,14 @@ class TestPaystackAPI(unittest.TestCase):
         self.assertEqual(context.exception.status_code, 400)
         self.assertIn("Missing required parameter: reference", str(context.exception))
 
+    def test_list_transactions(self):
+        response = self.api.list_transactions()
+        if response["status_code"] == 401:
+            self.assertEqual(response["message"], "Invalid API key")
+        elif response["status_code"] == 200:
+            self.assertEqual(response["status_code"], 200)
+            self.assertEqual(response["message"], "Transactions details below")
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -23,5 +23,11 @@ try:
     except Exception as e:
         print("Error verifying transaction:", str(e))
 
+    try:
+        transactions = transaction_api.list_transactions()
+        print("Transactions:", transactions)
+    except Exception as e:
+        print("Error listing transactions:", str(e))
+
 except Exception as e:
     print("Error initializing transaction:", str(e))

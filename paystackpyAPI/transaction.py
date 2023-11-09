@@ -8,7 +8,7 @@ from errors import APIError
 
 
 class Transaction(PaystackAPI):
-    ALLOWED_OPTIONAL_PARAMS = [
+    INITIALIZATION_OPTIONAL_PARAMS = [
         "currency",
         "reference",
         "callback_url",
@@ -22,10 +22,20 @@ class Transaction(PaystackAPI):
         "bearer"
     ]
 
+    TRANSACTION_LIST_OPTIONAL_PARAMS = [
+        "customer",
+        "terminalid",
+        "status",
+        "from",
+        "to",
+        "amount"
+    ]
+
     def __init__(self, api_key: str):
         super().__init__(api_key)
         self.paystack_initialization_url = "https://api.paystack.co/transaction/initialize"
         self.paystack_verification_url = "https://api.paystack.co/transaction/verify"
+        self.list_transaction_url = "https://api.paystack.co/transaction"
 
     def initialize_transaction(self, email: str, amount: int, **kwargs):
         """
@@ -41,7 +51,7 @@ class Transaction(PaystackAPI):
         if not email or not amount:
             raise APIError(400, "Missing required parameters: email and/or amount")
 
-        valid_kwargs = {key: value for key, value in kwargs.items() if key in self.ALLOWED_OPTIONAL_PARAMS}
+        valid_kwargs = {key: value for key, value in kwargs.items() if key in self.INITIALIZATION_OPTIONAL_PARAMS}
         data = {
             "email": email,
             "amount": amount,
@@ -97,4 +107,29 @@ class Transaction(PaystackAPI):
             error_message = response.text
             raise APIError(response.status_code, error_message)
 
+        return custom_response
+
+    def list_transactions(self, **kwargs):
+        """
+        List transactions carried out on your integration
+        """
+        if not self.api_key:
+            raise APIError(401, "Invalid API Key")
+        valid_kwargs = {key: value for key, value in kwargs.items() if key in self.TRANSACTION_LIST_OPTIONAL_PARAMS}
+        headers = {
+            'Authorization': f'Bearer {self.api_key}'
+        }
+        data = {
+            **valid_kwargs
+        }
+        response = requests.get(self.list_transaction_url, headers=headers, params=data)
+        if response.status_code == 200:
+            custom_response = {
+                "status_code": response.status_code,
+                "message": "Transactions details below",
+                "data": response.json()
+            }
+        else:
+            error_message = response.text
+            raise APIError(response.status_code, error_message)
         return custom_response
