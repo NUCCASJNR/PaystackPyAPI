@@ -109,20 +109,49 @@ class Transaction(PaystackAPI):
 
         return custom_response
 
-    def list_transactions(self, **kwargs):
+    def list_transactions(self, **kwargs: Dict) -> Dict:
         """
-        List transactions carried out on your integration
+        Retrieve a list of transactions based on optional parameters.
+
+        :param kwargs: Optional parameters for filtering the list of transactions.
+                       Supported parameters:
+                       - `perPage`: Number of transactions to retrieve per page.
+                       - `page`: Page number for pagination.
+                       - `from`: Start date for transactions in the format 'YYYY-MM-DD'.
+                       - `to`: End date for transactions in the format 'YYYY-MM-DD'.
+                       - `customer`: Customer's email or identification.
+                       - `status`: Transaction status (e.g., 'success', 'failed').
+                       - `currency`: Currency code (e.g., 'NGN', 'USD').
+                       - `amount`: Transaction amount.
+                       - `reference`: Transaction reference.
+                       - `gateway`: Payment gateway used (e.g., 'card', 'bank').
+                       - `channel`: Transaction channel (e.g., 'card', 'bank').
+                       - `plan`: Plan code associated with the transaction.
+
+        :return: Customized response with the list of transactions.
+                 Format: {
+                     "status_code": int,
+                     "message": str,
+                     "data": dict
+                 }
+
+        :raises APIError: If the API key is invalid or if there's an issue with the request.
         """
         if not self.api_key:
             raise APIError(401, "Invalid API Key")
+
         valid_kwargs = {key: value for key, value in kwargs.items() if key in self.TRANSACTION_LIST_OPTIONAL_PARAMS}
+
         headers = {
             'Authorization': f'Bearer {self.api_key}'
         }
+
         data = {
             **valid_kwargs
         }
+
         response = requests.get(self.list_transaction_url, headers=headers, params=data)
+
         if response.status_code == 200:
             custom_response = {
                 "status_code": response.status_code,
@@ -132,4 +161,6 @@ class Transaction(PaystackAPI):
         else:
             error_message = response.text
             raise APIError(response.status_code, error_message)
+
         return custom_response
+
