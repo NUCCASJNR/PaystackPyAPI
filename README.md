@@ -14,7 +14,7 @@ pip install paystackpyAPI
 
 **1. Obtain API Key:**
 
-_Sign up for a Paystack account if you don't have one: [Paystack Signup](https://dashboard.paystack.com/signup).
+Sign up for a Paystack account if you don't have one: [Paystack Signup](https://dashboard.paystack.com/#/signup).
 
 _Log in to your Paystack dashboard and obtain your API key._
 
@@ -48,7 +48,7 @@ print("Verification Response:", verify_response)
 
 5. **Optional parameters**
 
-_The initialize_transaction method supports the following optional parameters:
+The initialize_transaction method supports the following optional parameters:
 
 1. currency
 
