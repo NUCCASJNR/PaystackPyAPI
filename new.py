@@ -1,4 +1,4 @@
-from paystackpyAPI.transaction import transaction
+from paystackpyAPI.transaction import Transaction
+from os import getenv
 
-if __name__ == "__main__":
-    transaction()
+api_key = getenv("PAYSTACK_KEY")

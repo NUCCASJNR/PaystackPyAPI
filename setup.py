@@ -5,7 +5,7 @@ with open("README.md", "r") as readme_file:
 
 setup(
     name="paystackpyAPI",
-    version="2.0.0",
+    version="1.0.0",
     author="Al-Areef",
     description="A Python package designed to simplify and streamline Paystack API integration, enabling secure \
         online payment processing in your Python applications.",
