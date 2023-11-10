@@ -49,6 +49,8 @@ class Transaction(PaystackAPI):
         self.list_transaction_url = "https://api.paystack.co/transaction"
         self.fetch_transaction_url = "https://api.paystack.co/transaction"
         self.charge_authorization_url = "https://api.paystack.co/transaction/charge_authorization"
+        self.transaction_timeline_url = "https://api.paystack.co/transaction/timeline"
+
 
     def initialize_transaction(self, email: str, amount: int, **kwargs):
         """
@@ -228,6 +230,26 @@ class Transaction(PaystackAPI):
             custom_response = {
                 "status_code": response.status_code,
                 "message": "Transaction initialized successfully",
+                "response_from_api": response.json()
+            }
+        else:
+            error_message = response.text
+            raise APIError(response.status_code, error_message)
+        return custom_response
+
+    def show_transaction_timeline(self, id_or_reference: str) -> Dict:
+        """
+        SHow a transaction timeline
+        """
+        headers = {
+            'Authorization': f'Bearer {self.api_key}'
+        }
+        url = f"{self.transaction_timeline_url}/{id_or_reference}"
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            custom_response = {
+                "status_code": response.status_code,
+                "message": "Transaction timeline retrieved",
                 "response_from_api": response.json()
             }
         else:

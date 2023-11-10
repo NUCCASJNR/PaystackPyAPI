@@ -106,7 +106,17 @@ class TestPaystackAPI(unittest.TestCase):
         self.assertEqual(response["message"], "Transaction Successfully fetched")
         print(response["message"])
 
+    def test_show_transaction_timeline_with_wrongId(self):
+        with self.assertRaises(APIError) as context:
+            self.api.show_transaction_timeline("wrong_id")
+        self.assertEqual(context.exception.status_code, 404)
+        self.assertIn("Transaction ID or reference is invalid", str(context.exception))
 
+    def test_show_transaction_timeline_with_validId(self):
+        response = self.api.show_transaction_timeline(REFERENCE)
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(response["message"], "Transaction timeline retrieved")
+        print(response["message"])
 
 
 if __name__ == '__main__':
