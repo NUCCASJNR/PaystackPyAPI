@@ -5,6 +5,7 @@ import requests
 from .base import PaystackAPI
 from typing import Dict, Union
 from errors import APIError
+from decimal import Decimal
 
 
 class Transaction(PaystackAPI):
@@ -30,6 +31,16 @@ class Transaction(PaystackAPI):
         "to",
         "amount"
     ]
+    CHARGE_AUTHORIZATION_OPTIONAL_PARAMS = [
+        "reference",
+        "currency",
+        "metadata",
+        "channels",
+        "subaccount",
+        "transaction_charge",
+        "bearer",
+        "queue"
+    ]
 
     def __init__(self, api_key: str):
         super().__init__(api_key)
@@ -37,6 +48,7 @@ class Transaction(PaystackAPI):
         self.paystack_verification_url = "https://api.paystack.co/transaction/verify"
         self.list_transaction_url = "https://api.paystack.co/transaction"
         self.fetch_transaction_url = "https://api.paystack.co/transaction"
+        self.charge_authorization_url = "https://api.paystack.co/transaction/charge_authorization"
 
     def initialize_transaction(self, email: str, amount: int, **kwargs):
         """
@@ -55,7 +67,7 @@ class Transaction(PaystackAPI):
         valid_kwargs = {key: value for key, value in kwargs.items() if key in self.INITIALIZATION_OPTIONAL_PARAMS}
         data = {
             "email": email,
-            "amount": amount,
+            "amount": amount * 100,
             **valid_kwargs
         }
 
@@ -182,6 +194,40 @@ class Transaction(PaystackAPI):
             custom_response = {
                 "status_code": response.status_code,
                 "message": "Transaction Successfully fetched",
+                "response_from_api": response.json()
+            }
+        else:
+            error_message = response.text
+            raise APIError(response.status_code, error_message)
+        return custom_response
+
+    def charge_authorization(self, email: str, amount: int, authorization_code: str, **kwargs: Dict) -> Dict:
+        """charge  a transaction"""
+
+        if not self.api_key:
+            raise APIError(401, "Invalid API Key")
+        valid_kwargs = {key: value for key, value in kwargs.items() if key in self.CHARGE_AUTHORIZATION_OPTIONAL_PARAMS}
+        if not amount:
+            raise APIError(400, "Missing required parameter amount")
+        if not email:
+            raise APIError(400, "Missing required parameter email")
+        if not authorization_code:
+            raise APIError(400, "Missing required parameter authorization_code")
+        headers = {
+            'Authorization': f'Bearer {self.api_key}',
+            'Content-Type': 'application/json',
+        }
+        data = {
+            "amount": amount * 100,
+            "email": email,
+            "authorization_code": f"AUTH_{authorization_code}",
+            **valid_kwargs
+        }
+        response = requests.post(self.charge_authorization_url, headers=headers, json=data)
+        if response.status_code == 200:
+            custom_response = {
+                "status_code": response.status_code,
+                "message": "Transaction initialized successfully",
                 "response_from_api": response.json()
             }
         else:

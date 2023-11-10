@@ -1,5 +1,3 @@
-from errors import APIError
-
 
 class PaystackAPI:
     

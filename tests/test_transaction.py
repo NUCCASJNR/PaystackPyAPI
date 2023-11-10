@@ -8,7 +8,7 @@ import responses
 
 REFERENCE = secrets.token_hex(16)
 ID = ''
-
+print(ID)
 class TestPaystackAPI(unittest.TestCase):
     def setUp(self):
         # Set up any necessary test data or configurations
@@ -105,6 +105,8 @@ class TestPaystackAPI(unittest.TestCase):
         self.assertEqual(response["status_code"], 200)
         self.assertEqual(response["message"], "Transaction Successfully fetched")
         print(response["message"])
+
+
 
 
 if __name__ == '__main__':
