@@ -40,6 +40,11 @@ try:
         print("Transaction:", fetch_transaction)
     except Exception as e:
         print("Error fetching transaction:", str(e))
+    try:
+        total_transactions = transaction.get_transaction_totals()
+        print("Total Transactions:", total_transactions)
+    except Exception as e:
+        print("Error getting total transactions:", str(e))
 
 except Exception as e:
     print("Error initializing transaction:", str(e))

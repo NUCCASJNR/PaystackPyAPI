@@ -118,6 +118,37 @@ class TestPaystackAPI(unittest.TestCase):
         self.assertEqual(response["message"], "Transaction timeline retrieved")
         print(response["message"])
 
+    def test_get_transaction_totals(self):
+        response = self.api.get_transaction_totals()
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(response["message"], "Transaction totals retrieved successfully")
+        print(response["message"])
+
+    def test_get_transaction_totals_with_400(self):
+        with responses.RequestsMock() as rsps:
+            rsps.add(
+                responses.GET,
+                self.api.transaction_totals_url,
+                status=400,
+                json={"status": False, "message": "Invalid request"},
+            )
+            with self.assertRaises(APIError) as context:
+                self.api.get_transaction_totals()
+            self.assertEqual(context.exception.status_code, 400)
+            self.assertIn("Invalid request", str(context.exception))
+
+    def test_get_transaction_totals_with_401(self):
+        with responses.RequestsMock() as rsps:
+            rsps.add(
+                responses.GET,
+                self.api.transaction_totals_url,
+                status=401,
+                json={"status": False, "message": "Invalid API Key"},
+            )
+            with self.assertRaises(APIError) as context:
+                self.api.get_transaction_totals()
+            self.assertEqual(context.exception.status_code, 401)
+            self.assertIn("Invalid API Key", str(context.exception))
 
 if __name__ == '__main__':
     unittest.main()

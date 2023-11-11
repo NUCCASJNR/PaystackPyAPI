@@ -50,7 +50,7 @@ class Transaction(PaystackAPI):
         self.fetch_transaction_url = "https://api.paystack.co/transaction"
         self.charge_authorization_url = "https://api.paystack.co/transaction/charge_authorization"
         self.transaction_timeline_url = "https://api.paystack.co/transaction/timeline"
-
+        self.transaction_totals_url = "https://api.paystack.co/transaction/totals"
 
     def initialize_transaction(self, email: str, amount: int, **kwargs):
         """
@@ -255,4 +255,52 @@ class Transaction(PaystackAPI):
         else:
             error_message = response.text
             raise APIError(response.status_code, error_message)
+        return custom_response
+
+    def get_transaction_totals(self, per_page=50, page=1, from_date=None, to_date=None):
+        """
+        Retrieve the total amount received on your account based on specified parameters.
+
+        :param per_page: Number of records to retrieve per page (default is 50).
+        :param page: Page number to retrieve (default is 1).
+        :param from_date: Start date for listing transactions in the format 'YYYY-MM-DDTHH:mm:ss.SSSZ'.
+        :param to_date: End date for listing transactions in the format 'YYYY-MM-DDTHH:mm:ss.SSSZ'.
+
+        :return: Customized response with the total amount received.
+                 Format: {
+                     "status_code": int,
+                     "message": str,
+                     "data": {
+                         "total_amount": float
+                     }
+                 }
+
+        :raises APIError: If the API key is invalid or if there's an issue with the request.
+        """
+        if not self.api_key:
+            raise APIError(401, "Invalid API Key")
+
+        headers = {
+            'Authorization': f'Bearer {self.api_key}'
+        }
+
+        params = {
+            'perPage': per_page,
+            'page': page,
+            'from': from_date,
+            'to': to_date
+        }
+
+        response = requests.get(self.transaction_totals_url, headers=headers, params=params)
+
+        if response.status_code == 200:
+            custom_response = {
+                "status_code": response.status_code,
+                "message": "Transaction totals retrieved successfully",
+                "response_from_api": response.json()
+            }
+        else:
+            error_message = response.text
+            raise APIError(response.status_code, error_message)
+
         return custom_response
