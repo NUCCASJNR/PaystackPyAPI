@@ -9,6 +9,8 @@ import responses
 REFERENCE = secrets.token_hex(16)
 ID = ''
 print(ID)
+
+
 class TestPaystackAPI(unittest.TestCase):
     def setUp(self):
         # Set up any necessary test data or configurations
@@ -106,6 +108,42 @@ class TestPaystackAPI(unittest.TestCase):
         self.assertEqual(response["message"], "Transaction Successfully fetched")
         print(response["message"])
 
+    def test_authorize_transaction_with_missing_amount(self):
+        data = {
+            "email": "alareefadegbite@gmail.com",
+            "authorization_code": "AUTH_8dfhjjdt",
+            "amount": None
+        }
+        with self.assertRaises(APIError) as context:
+            self.api.charge_authorization(**data)
+        print(context.exception)
+        self.assertEqual(context.exception.status_code, 400)
+        self.assertIn("Missing required parameter amount", str(context.exception))
+
+    def test_authorize_transaction_with_missing_email(self):
+        data = {
+            "email": None,
+            "authorization_code": "AUTH_8dfhjjdt",
+            "amount": 2000
+        }
+        with self.assertRaises(APIError) as context:
+            self.api.charge_authorization(**data)
+        print(context.exception)
+        self.assertEqual(context.exception.status_code, 400)
+        self.assertIn("Missing required parameter email", str(context.exception))
+
+    def test_authorize_transaction_with_missing_auth_code(self):
+        data = {
+            "email": 'alareefadegbite@gmail.com',
+            "authorization_code": None,
+            "amount": 2000
+        }
+        with self.assertRaises(APIError) as context:
+            self.api.charge_authorization(**data)
+        print(context.exception)
+        self.assertEqual(context.exception.status_code, 400)
+        self.assertIn("Missing required parameter auth", str(context.exception))
+
     def test_show_transaction_timeline_with_wrongId(self):
         with self.assertRaises(APIError) as context:
             self.api.show_transaction_timeline("wrong_id")
@@ -149,6 +187,7 @@ class TestPaystackAPI(unittest.TestCase):
                 self.api.get_transaction_totals()
             self.assertEqual(context.exception.status_code, 401)
             self.assertIn("Invalid API Key", str(context.exception))
+
 
 if __name__ == '__main__':
     unittest.main()
