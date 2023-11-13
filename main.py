@@ -45,6 +45,11 @@ try:
         print("Total Transactions:", total_transactions)
     except Exception as e:
         print("Error getting total transactions:", str(e))
-
+        
+    try:
+        export = transaction.export_transactions()
+        print("export result :", export)
+    except Exception as e:
+        print("Error Exporting transactions:", str(e))
 except Exception as e:
     print("Error initializing transaction:", str(e))

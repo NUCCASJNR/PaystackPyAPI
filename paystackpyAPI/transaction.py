@@ -6,7 +6,8 @@ from .base import PaystackAPI
 from typing import Dict, Union
 from errors import APIError
 from decimal import Decimal
-
+import datetime
+import webbrowser
 
 class Transaction(PaystackAPI):
     INITIALIZATION_OPTIONAL_PARAMS = [
@@ -41,6 +42,18 @@ class Transaction(PaystackAPI):
         "bearer",
         "queue"
     ]
+    
+    EXPORT_OPTIONAL_PARAMS = [
+        'from',
+        'to',
+        'customer',
+        'status',
+        'currency',
+        'amount',
+        'settled',
+        'settlement',
+        'payment_page'
+    ]
 
     def __init__(self, api_key: str):
         super().__init__(api_key)
@@ -51,6 +64,8 @@ class Transaction(PaystackAPI):
         self.charge_authorization_url = "https://api.paystack.co/transaction/charge_authorization"
         self.transaction_timeline_url = "https://api.paystack.co/transaction/timeline"
         self.transaction_totals_url = "https://api.paystack.co/transaction/totals"
+        self.export_transactions_url = "https://api.paystack.co/transaction/export"
+        
 
     def initialize_transaction(self, email: str, amount: int, **kwargs):
         """
@@ -257,7 +272,7 @@ class Transaction(PaystackAPI):
             raise APIError(response.status_code, error_message)
         return custom_response
 
-    def get_transaction_totals(self, per_page=50, page=1, from_date=None, to_date=None):
+    def get_total_transactions(self, per_page=50, page=1, from_date=None, to_date=None):
         """
         Retrieve the total amount received on your account based on specified parameters.
 
@@ -304,3 +319,71 @@ class Transaction(PaystackAPI):
             raise APIError(response.status_code, error_message)
 
         return custom_response
+    
+    def download_csv(self, url, output_filename='exported_file.csv'):
+        response = requests.get(url)
+        response.raise_for_status()
+
+        with open(output_filename, 'wb') as file:
+            file.write(response.content)
+
+        print(f'File downloaded successfully: {output_filename}')
+
+    def export_transactions(self, per_page=50, page=1, filename="export.csv", **kwargs):
+        """
+        initiate the export, and download the CSV file.
+
+        :param per_page: Number of records to retrieve per page (default is 50).
+        :param page: Page number to retrieve (default is 1).
+        :param filename: Optional filename for the exported CSV file.
+
+        :return: Customized response indicating the success of the export.
+                 Format: {
+                     "status_code": int,
+                     "message": str,
+                     "data": {
+                         "exported_file": str  # File path or URL
+                     }
+                 }
+
+        :raises APIError: If the API key is invalid, export initiation fails, or if there's an issue with the request.
+        """
+        optional_kwargs = {key: value for key, value in kwargs.items() if key in self.EXPORT_OPTIONAL_PARAMS}
+        if not self.api_key:
+            raise APIError(401, "Invalid API key")
+        headers = {
+            'Authorization': f'Bearer {self.api_key}'
+        }
+
+        params = {
+            'perPage': per_page,
+            'page': page,
+            **optional_kwargs
+        }
+        try:
+            response = requests.get(self.export_transactions_url, headers=headers, params=params)
+            if response.status_code == 200:
+               data = response.json()
+               url_to_visit = data['data']['path']
+               webbrowser.open(url_to_visit)
+               self.download_csv(url_to_visit, output_filename=filename)
+
+            custom_response = {
+                "status_code": response.status_code,
+                "message": f"Transactions exported successfully to {filename or url_to_visit}",
+                "data": {
+                    "exported_file": filename or url_to_visit
+                }
+            }
+
+            return custom_response
+        
+
+        except requests.exceptions.HTTPError as errh:
+            raise APIError(errh.response.status_code, f"HTTP Error: {errh}")
+        except requests.exceptions.ConnectionError as errc:
+            raise APIError(500, f"Error Connecting: {errc}")
+        except requests.exceptions.Timeout as errt:
+            raise APIError(500, f"Timeout Error: {errt}")
+        except requests.exceptions.RequestException as err:
+            raise APIError(500, f"An error occurred: {err}")

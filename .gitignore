@@ -1,6 +1,10 @@
 pay_venv
-Paystackpy/__pycache__
+paystackpyAPI/__pycache__
 tests/__pycache__
 /build/
 /dist/
 /paystackpyAPI.egg-info/
+.idea
+__pycache__
+pay.py
+res.json

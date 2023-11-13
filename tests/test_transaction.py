@@ -157,7 +157,7 @@ class TestPaystackAPI(unittest.TestCase):
         print(response["message"])
 
     def test_get_transaction_totals(self):
-        response = self.api.get_transaction_totals()
+        response = self.api.get_total_transactions()
         self.assertEqual(response["status_code"], 200)
         self.assertEqual(response["message"], "Transaction totals retrieved successfully")
         print(response["message"])
@@ -171,7 +171,7 @@ class TestPaystackAPI(unittest.TestCase):
                 json={"status": False, "message": "Invalid request"},
             )
             with self.assertRaises(APIError) as context:
-                self.api.get_transaction_totals()
+                self.api.get_total_transactions()
             self.assertEqual(context.exception.status_code, 400)
             self.assertIn("Invalid request", str(context.exception))
 
@@ -184,7 +184,7 @@ class TestPaystackAPI(unittest.TestCase):
                 json={"status": False, "message": "Invalid API Key"},
             )
             with self.assertRaises(APIError) as context:
-                self.api.get_transaction_totals()
+                self.api.get_total_transactions()
             self.assertEqual(context.exception.status_code, 401)
             self.assertIn("Invalid API Key", str(context.exception))
 
