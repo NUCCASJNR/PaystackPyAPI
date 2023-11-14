@@ -1,5 +1,6 @@
 import tracemalloc
 import unittest
+from unittest.mock import Mock, patch
 from paystackpyAPI.transaction import Transaction
 from errors import APIError
 from os import getenv
@@ -187,7 +188,23 @@ class TestPaystackAPI(unittest.TestCase):
                 self.api.get_total_transactions()
             self.assertEqual(context.exception.status_code, 401)
             self.assertIn("Invalid API Key", str(context.exception))
-
+    
+    def test_export_transactions(self):
+        response = self.api.export_transactions()
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(response["message"], 'Transactions exported successfully to export.csv')
+        self.assertEqual(response['data'], {'exported_file': 'export.csv'})
+    
+    
+    @patch('paystackpyAPI.transaction.requests.get')
+    def test_export_transaction_failure(self, mock_get):
+        mock_get.return_value.status = 404
+        mock_get.return_value.text = 'Not Found'
+        try:
+            self.api.export_transactions()
+        except APIError as e:
+            self.assertEqual(e.status_code, 404)
+            self.assertEqual(e.message, 'Not Found')
 
 if __name__ == '__main__':
     unittest.main()

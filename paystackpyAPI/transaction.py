@@ -365,7 +365,7 @@ class Transaction(PaystackAPI):
             if response.status_code == 200:
                data = response.json()
                url_to_visit = data['data']['path']
-               webbrowser.open(url_to_visit)
+            #    webbrowser.open(url_to_visit)
                self.download_csv(url_to_visit, output_filename=filename)
 
             custom_response = {
