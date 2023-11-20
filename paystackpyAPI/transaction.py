@@ -2,7 +2,7 @@
 
 """Handles All Paystack related tasks"""
 import requests
-from .base import PaystackAPI
+from paystackpyAPI.base import PaystackAPI
 from typing import Dict, Union
 from errors import APIError
 from decimal import Decimal
@@ -57,6 +57,7 @@ class Transaction(PaystackAPI):
 
     def __init__(self, api_key: str):
         super().__init__(api_key)
+        self.session = requests.Session()
         self.paystack_initialization_url = "https://api.paystack.co/transaction/initialize"
         self.paystack_verification_url = "https://api.paystack.co/transaction/verify"
         self.list_transaction_url = "https://api.paystack.co/transaction"
@@ -65,6 +66,14 @@ class Transaction(PaystackAPI):
         self.transaction_timeline_url = "https://api.paystack.co/transaction/timeline"
         self.transaction_totals_url = "https://api.paystack.co/transaction/totals"
         self.export_transactions_url = "https://api.paystack.co/transaction/export"
+    
+    def close(self):
+        """
+        Close the session and release associated resources.
+        """
+        if self.session:
+            self.session.close()
+            self.session = None
         
 
     def initialize_transaction(self, email: str, amount: int, **kwargs):
@@ -235,9 +244,9 @@ class Transaction(PaystackAPI):
             'Content-Type': 'application/json',
         }
         data = {
-            "amount": amount * 100,
             "email": email,
-            "authorization_code": f"AUTH_{authorization_code}",
+            "amount": amount * 100,
+            "authorization_code": authorization_code,
             **valid_kwargs
         }
         response = requests.post(self.charge_authorization_url, headers=headers, json=data)

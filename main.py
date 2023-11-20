@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from paystackpyAPI.transaction import Transaction
 from os import getenv
 api_key = getenv("PAYSTACK_KEY")
@@ -5,17 +6,20 @@ api_key = getenv("PAYSTACK_KEY")
 transaction = Transaction(api_key)
 
 # Example: Initialize a transaction
-email = 'customer@example.com'
-amount = 5000  # Replace with your desired amount
+email = 'memer161921@gmail.com'
+amount = 100  # Replace with your desired amount
 optional_params = {'currency': 'NGN', 'callback_url': 'https://example.com/callback'}
 
 try:
     initialization_response = transaction.initialize_transaction(email, amount, **optional_params)
     print("Initialization Response:", initialization_response)
 
+    # charge = transaction.charge_authorization(email, amount, 'AUTH_7guppxnx8f')
+    # print("Charge Response:", charge)
+
     # Extract the reference from the initialization response
     reference_to_verify = initialization_response["response_from_api"]['data']['reference']
-
+    
     try:
         auth_code = initialization_response["response_from_api"]['data']['authorization_url']
         auth_code = auth_code.split('/')[-1]
@@ -45,7 +49,7 @@ try:
         print("Total Transactions:", total_transactions)
     except Exception as e:
         print("Error getting total transactions:", str(e))
-        
+    
     try:
         export = transaction.export_transactions()
         print("export result :", export)

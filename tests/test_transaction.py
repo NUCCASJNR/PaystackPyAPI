@@ -21,36 +21,42 @@ class TestPaystackAPI(unittest.TestCase):
         # Clean up any resources used for testing
         responses.stop()
         responses.reset()
-        tracemalloc.stop()
+        self.api.close()
 
     def test_non_200_response(self):
-        with responses.RequestsMock() as rsps:
-            rsps.add(
-                responses.POST,
-                self.api.paystack_initialization_url,
-                status=400,
-                json={"status": False, "message": "Invalid request"},
-            )
+        try:
+            with responses.RequestsMock() as rsps:
+                rsps.add(
+                    responses.POST,
+                    self.api.paystack_initialization_url,
+                    status=400,
+                    json={"status": False, "message": "Invalid request"},
+                )
+                data = {
+                    "email": "test@example.com",
+                    "amount": 1000,
+                    "reference": REFERENCE,
+                }
+                with self.assertRaises(APIError) as context:
+                    self.api.initialize_transaction(**data)
+                self.assertEqual(context.exception.status_code, 400)
+        finally:
+            self.api.close()
+
+    def test_initialize_transaction(self):
+        try:
             data = {
                 "email": "test@example.com",
                 "amount": 1000,
                 "reference": REFERENCE,
             }
-            with self.assertRaises(APIError) as context:
-                self.api.initialize_transaction(**data)
-            self.assertEqual(context.exception.status_code, 400)
 
-    def test_initialize_transaction(self):
-        data = {
-            "email": "test@example.com",
-            "amount": 1000,
-            "reference": REFERENCE,
-        }
-
-        response = self.api.initialize_transaction(**data)
-        self.assertEqual(response["status_code"], 200)
-        self.assertEqual(response["message"], "Transaction initialized successfully")
-        print(response["message"])
+            response = self.api.initialize_transaction(**data)
+            self.assertEqual(response["status_code"], 200)
+            self.assertEqual(response["message"], "Transaction initialized successfully")
+            print(response["message"])
+        finally:
+            self.api.close()
 
     def test_verify_transaction(self):
         reference = REFERENCE
@@ -194,8 +200,7 @@ class TestPaystackAPI(unittest.TestCase):
         self.assertEqual(response["status_code"], 200)
         self.assertEqual(response["message"], 'Transactions exported successfully to export.csv')
         self.assertEqual(response['data'], {'exported_file': 'export.csv'})
-    
-    
+
     @patch('paystackpyAPI.transaction.requests.get')
     def test_export_transaction_failure(self, mock_get):
         mock_get.return_value.status = 404
