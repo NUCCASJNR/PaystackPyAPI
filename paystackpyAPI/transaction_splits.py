@@ -57,7 +57,7 @@ class TransactionSplit(PaystackAPI):
         if response.status_code == 200:
             custom_response = {
                 "status_code": response.status_code,
-                "message": "Transaction initialized successfully",
+                "message": "Split Transaction initialized successfully",
                 "response_from_api": response.json()
             }
         else:
