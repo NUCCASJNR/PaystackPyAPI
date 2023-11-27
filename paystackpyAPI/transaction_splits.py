@@ -9,6 +9,7 @@ and one or more subaccounts.
 from paystackpyAPI.base import PaystackAPI
 from typing import Dict, List
 from errors import APIError
+import requests
 
 
 class TransactionSplit(PaystackAPI):
@@ -20,8 +21,8 @@ class TransactionSplit(PaystackAPI):
         super().__init__(api_key)
         self.create_split_url = "https://api.paystack.co/split"
 
-    def create_split(self, name: str, type: str, currency: str, subaccounts: List,
-                     bearer_type: str, bearer_subaccount: str) -> Dict:
+    def create_split(self, name: str, type: str, currency: str, subaccounts: List[Dict],
+                 bearer_type: str, bearer_subaccount: str) -> Dict:
         """
         name: Name of transaction split
         type: The type of transaction split you want to create.
@@ -44,7 +45,19 @@ class TransactionSplit(PaystackAPI):
             "name": name,
             "type": type,
             "currency": currency,
-            "subaccount": subaccount,
-            "bearer_type": subaccount,
+            "subaccounts": subaccounts,  # Corrected key name
+            "bearer_type": bearer_type,  # Corrected key name
             "bearer_subaccount": bearer_subaccount
         }
+        response = requests.post(self.create_split_url, headers=headers, json=data)
+        if response.status_code == 200:
+            custom_response = {
+                "status_code": response.status_code,
+                "message": "Transaction initialized successfully",
+                "response_from_api": response.json()
+            }
+        else:
+            error_message = response.text
+            raise APIError(response.status_code, error_message)
+        return custom_response
+
