@@ -9,6 +9,7 @@ from decimal import Decimal
 import datetime
 import webbrowser
 
+
 class Transaction(PaystackAPI):
     INITIALIZATION_OPTIONAL_PARAMS = [
         "currency",
@@ -74,7 +75,6 @@ class Transaction(PaystackAPI):
         if self.session:
             self.session.close()
             self.session = None
-        
 
     def initialize_transaction(self, email: str, amount: int, **kwargs):
         """

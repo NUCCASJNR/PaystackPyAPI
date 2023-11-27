@@ -20,6 +20,7 @@ class TransactionSplit(PaystackAPI):
         """
         super().__init__(api_key)
         self.create_split_url = "https://api.paystack.co/split"
+        self.fetch_split_url = "https://api.paystack.co/split"
 
     def create_split(self, name: str, type: str, currency: str, subaccounts: List[Dict],
                      bearer_type: str, bearer_subaccount: str) -> Dict:
@@ -57,6 +58,33 @@ class TransactionSplit(PaystackAPI):
             custom_response = {
                 "status_code": response.status_code,
                 "message": "Transaction initialized successfully",
+                "response_from_api": response.json()
+            }
+        else:
+            error_message = response.text
+            raise APIError(response.status_code, error_message)
+
+        return custom_response
+
+    def fetch_transaction_splits(self, transaction_id: int) -> Dict:
+        """
+        Fetches a transaction split using the transaction_id provided
+        :param transaction_id:Transaction id
+        :return: Details of the split if found else None
+        """
+        if not transaction_id:
+            raise APIError(400, 'Missing required parameter Transaction id')
+        if not self.api_key:
+            raise APIError(401, "Invalid API key")
+        url = f'{self.fetch_split_url}/{transaction_id}'
+        headers = {
+            'Authorization': f'Bearer {self.api_key}'
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            custom_response = {
+                "status_code": response.status_code,
+                "message": "Split  details retrieved successfully",
                 "response_from_api": response.json()
             }
         else:
