@@ -4,7 +4,7 @@ with open("README.md", "r") as readme_file:
     long_description = readme_file.read()
 
 setup(
-    name="paystackpyAPI",
+    name="paystackpyapi",
     version="1.0.0",
     author="Al-Areef",
     description="A Python package designed to simplify and streamline Paystack API integration, enabling secure \
@@ -16,7 +16,7 @@ setup(
     install_requires=["requests"],
     entry_points={
         'console_scripts': [
-            'paystack-transaction=paystackpyAPI.transaction:Transaction',
+            'paystack-transaction=paystackpyapi.transaction:Transaction',
         ],
     },
     classifiers=[

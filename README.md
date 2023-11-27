@@ -7,7 +7,7 @@ PaystackPyAPI is a Python package designed to simplify and streamline Paystack A
 You can install the package using pip:
 
 ```bash
-pip install paystackpyAPI
+pip install paystackpyapi
 ```
 
 ##  Getting Started
@@ -21,7 +21,7 @@ _Log in to your Paystack dashboard and obtain your API key._
 2. **Initialize PaystackAPI:**
 
 ```bash
-from paystackpyAPI.transaction import Transaction
+from paystackpyapi.transaction import Transaction
 
 # Replace 'your_api_key' with your actual Paystack API key
 api_key = 'your_api_key'

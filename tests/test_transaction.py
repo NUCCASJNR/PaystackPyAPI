@@ -201,7 +201,7 @@ class TestPaystackAPI(unittest.TestCase):
         self.assertEqual(response["message"], 'Transactions exported successfully to export.csv')
         self.assertEqual(response['data'], {'exported_file': 'export.csv'})
 
-    @patch('paystackpyAPI.transaction.requests.get')
+    @patch('paystackpyapi.transaction.requests.get')
     def test_export_transaction_failure(self, mock_get):
         mock_get.return_value.status = 404
         mock_get.return_value.text = 'Not Found'

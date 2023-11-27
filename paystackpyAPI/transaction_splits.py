@@ -22,20 +22,21 @@ class TransactionSplit(PaystackAPI):
         self.create_split_url = "https://api.paystack.co/split"
 
     def create_split(self, name: str, type: str, currency: str, subaccounts: List[Dict],
-                 bearer_type: str, bearer_subaccount: str) -> Dict:
+                     bearer_type: str, bearer_subaccount: str) -> Dict:
         """
         name: Name of transaction split
         type: The type of transaction split you want to create.
             You can use one of the following: percentage | flat
         currency: Any of the supported Currency
-        subaccounts: A list of object containing subaccount code and number of shares:
-            [{subaccount: ‘ACT_xxxxxxxxxx’, share: xxx},{...}]
+        subaccounts: A list of objects containing subaccount code and number of shares:
+            [{"subaccount": "ACT_xxxxxxxxxx", "share": xxx}, {...}]
         bearer_type: Any of subaccount | account | all-proportional | all
         bearer_subaccount: Subaccount code
         """
 
         if not self.api_key:
             raise APIError(401, "Invalid API Key")
+
         headers = {
             'Authorization': f'Bearer {self.api_key}',
             'Content-Type': 'application/json',
@@ -45,11 +46,13 @@ class TransactionSplit(PaystackAPI):
             "name": name,
             "type": type,
             "currency": currency,
-            "subaccounts": subaccounts,  # Corrected key name
-            "bearer_type": bearer_type,  # Corrected key name
+            "subaccounts": subaccounts,
+            "bearer_type": bearer_type,
             "bearer_subaccount": bearer_subaccount
         }
+
         response = requests.post(self.create_split_url, headers=headers, json=data)
+
         if response.status_code == 200:
             custom_response = {
                 "status_code": response.status_code,
@@ -59,5 +62,5 @@ class TransactionSplit(PaystackAPI):
         else:
             error_message = response.text
             raise APIError(response.status_code, error_message)
-        return custom_response
 
+        return custom_response
